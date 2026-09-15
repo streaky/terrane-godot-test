@@ -51,10 +51,18 @@ For a compiler-only check:
 ## Run
 
 ```bash
-godot4 --path godot
+godot --path godot
 ```
 
-Godot calls the Rust binding once per frame. The binding advances the Terrane CPU simulation, requests a Terrane frame snapshot, and draws each body as a circle.
+For a display-independent smoke run:
+
+```bash
+godot --headless --path godot --quit-after 120
+```
+
+Some installations name the executable `godot4` instead. Godot calls the Rust
+binding once per frame. The binding advances the Terrane CPU simulation,
+requests a Terrane frame snapshot, and draws each body as a circle.
 
 ## Current integration gaps
 
