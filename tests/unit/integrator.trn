@@ -1,0 +1,21 @@
+namespace nbody
+
+from /core/testing import assert-equal-int, assert-near, test-failure
+from /nbody/integrator import step-cpu
+from /nbody/model import simulation-state
+from /nbody/setup import default-system
+
+function test-cpu-integrator-advances-known-system none throws test-failure;
+    state simulation-state = default-system;
+    iteration int = 0
+    while iteration < 600
+        state = step-cpu; move state, 0.008333333333333333
+        iteration++
+
+    assert-equal-int; state.x.length, 4
+    assert-near; state.elapsed, 5.0, 0.000000000001
+    assert-near; state.x[0], -139.77533781395573, 0.000000000001
+    assert-near; state.y[0], -2.248822533418347, 0.000000000001
+    assert-near; state.x[2], 3.6013832246708963, 0.000000000001
+    assert-near; state.y[2], 229.5865143922282, 0.000000000001
+    return none

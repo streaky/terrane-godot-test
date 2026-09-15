@@ -1,0 +1,47 @@
+namespace nbody/integrator
+
+from /core/collections import list
+from /nbody/model import simulation-state
+
+constant softening-squared float64 = 25
+
+function acceleration-scale float64; distance-squared float64, mass float64
+    softened float64 = distance-squared + softening-squared
+    inverse-distance float64 = 1 / (softened.square-root;)
+    return mass * inverse-distance * inverse-distance * inverse-distance
+
+public function step-cpu simulation-state; state simulation-state, delta float64
+    acceleration-x list of float64 = list
+    acceleration-y list of float64 = list
+    body-count int = state.x.length
+
+    index int = 0
+    while index < body-count
+        acceleration-x.append; 0.0
+        acceleration-y.append; 0.0
+        index++
+
+    left-index int = 0
+    while left-index < body-count
+        left-x float64 = state.x[left-index]
+        left-y float64 = state.y[left-index]
+        right-index int = 0
+        while right-index < body-count
+            if right-index != left-index
+                delta-x float64 = state.x[right-index] - left-x
+                delta-y float64 = state.y[right-index] - left-y
+                scale float64 = acceleration-scale; delta-x * delta-x + delta-y * delta-y, state.mass[right-index]
+                acceleration-x[left-index] = acceleration-x[left-index] + delta-x * scale
+                acceleration-y[left-index] = acceleration-y[left-index] + delta-y * scale
+            right-index++
+        left-index++
+
+    update-index int = 0
+    while update-index < body-count
+        state.velocity-x[update-index] = state.velocity-x[update-index] + acceleration-x[update-index] * delta
+        state.velocity-y[update-index] = state.velocity-y[update-index] + acceleration-y[update-index] * delta
+        state.x[update-index] = state.x[update-index] + state.velocity-x[update-index] * delta
+        state.y[update-index] = state.y[update-index] + state.velocity-y[update-index] * delta
+        update-index++
+    state.elapsed = state.elapsed + delta
+    return state

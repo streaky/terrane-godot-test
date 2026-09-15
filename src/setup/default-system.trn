@@ -1,0 +1,12 @@
+namespace nbody/setup
+
+from /core/collections import list
+from /nbody/model import simulation-state
+
+public function default-system simulation-state;
+    x list of float64 = list; -140.0, 140.0, 0.0, 0.0
+    y list of float64 = list; 0.0, 0.0, 230.0, -230.0
+    velocity-x list of float64 = list; 0.0, 0.0, 0.72, -0.72
+    velocity-y list of float64 = list; -0.45, 0.45, 0.0, 0.0
+    mass list of float64 = list; 1400.0, 1400.0, 6.0, 6.0
+    return instance simulation-state; x, y, velocity-x, velocity-y, mass, 0.0
