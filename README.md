@@ -2,6 +2,8 @@
 
 This project exercises a Terrane-authored CPU N-body simulation through the Rust `godot` GDExtension bindings. The simulation and frame model are Terrane code; the maintained Rust module is limited to Godot's macro-defined extension entrypoint and `Node2D` lifecycle/drawing bridge.
 
+[Watch a 10-second recording of the simulation on YouTube.](https://www.youtube.com/watch?v=kqYydz2LnyI)
+
 ## Architecture
 
 ```text
@@ -40,11 +42,12 @@ From this directory:
 ./build-extension.sh
 ```
 
-The helper asks Terrane to build the package as a `cdylib`, then installs the
-resulting library at `godot/bin/libterrane_nbody.so`, the stable path referenced
-by `terrane_nbody.gdextension`. The current packaging surface intentionally
-targets Linux x86-64; supporting another platform requires matching library
-entries and installation names in both files.
+The helper asks Terrane to build the package as a `cdylib`, installs the
+resulting library at `godot/bin/libterrane_nbody.so`, and writes Godot's
+generated extension list so direct game runs load `terrane_nbody.gdextension`
+without requiring an editor scan first. The current packaging surface
+intentionally targets Linux x86-64; supporting another platform requires
+matching library entries and installation names in both files.
 
 For compiler and simulation checks:
 
@@ -71,8 +74,12 @@ godot --headless --path godot --quit-after 120
 
 Some installations name the executable `godot4` instead. Godot accumulates
 render-frame time and advances the simulation in fixed 1/120-second steps, so
-the trajectory is independent of render-frame cadence. Each rendered frame
-requests a Terrane snapshot and draws every body as a circle.
+the trajectory is independent of render-frame cadence. The visualization runs
+that fixed-step trajectory at 20× real-time to keep its deliberately small
+world-space velocities visible. Each rendered frame requests a Terrane snapshot
+and draws every body as a circle. The overlay reports measured simulation steps
+per second, Godot's rendered video frames per second, and the simulation-time
+multiplier.
 
 ## Current integration gaps
 

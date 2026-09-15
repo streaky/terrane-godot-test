@@ -1,7 +1,14 @@
-#![allow(unsafe_code, reason = "Godot requires one unsafe ExtensionLibrary implementation")]
+#![allow(
+    unsafe_code,
+    reason = "Godot requires one unsafe ExtensionLibrary implementation"
+)]
 
 use godot::classes::{INode2D, Node2D};
 use godot::prelude::*;
+
+const FIXED_STEP: f64 = 1.0 / 120.0;
+const MAX_FRAME_DELTA: f64 = 0.25;
+const SIMULATION_TIME_SCALE: f64 = 20.0;
 
 struct TerraneNBodyExtension;
 
@@ -13,7 +20,21 @@ unsafe impl ExtensionLibrary for TerraneNBodyExtension {}
 struct TerraneNBodyView {
     state: Option<super::SimulationState>,
     accumulated_time: f64,
+    completed_steps: i64,
     base: Base<Node2D>,
+}
+
+#[godot_api]
+impl TerraneNBodyView {
+    #[func]
+    fn completed_steps(&self) -> i64 {
+        self.completed_steps
+    }
+
+    #[func]
+    fn simulation_time_scale(&self) -> f64 {
+        SIMULATION_TIME_SCALE
+    }
 }
 
 #[godot_api]
@@ -22,21 +43,20 @@ impl INode2D for TerraneNBodyView {
         Self {
             state: Some(super::default_system()),
             accumulated_time: 0.0,
+            completed_steps: 0,
             base,
         }
     }
 
     fn process(&mut self, delta: f64) {
-        const FIXED_STEP: f64 = 1.0 / 120.0;
-        const MAX_FRAME_DELTA: f64 = 0.25;
-
-        self.accumulated_time += delta.min(MAX_FRAME_DELTA);
+        self.accumulated_time += delta.min(MAX_FRAME_DELTA) * SIMULATION_TIME_SCALE;
         while self.accumulated_time >= FIXED_STEP {
             let state = self
                 .state
                 .take()
                 .expect("simulation state is restored after every fixed step");
             self.state = Some(super::step_cpu(state, FIXED_STEP));
+            self.completed_steps += 1;
             self.accumulated_time -= FIXED_STEP;
         }
         self.base_mut().queue_redraw();

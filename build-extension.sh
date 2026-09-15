@@ -16,4 +16,6 @@ if [[ ! -x "$terrane" ]]; then
 fi
 artifact=$($terrane build "$project_dir")
 install -Dm755 "$artifact" "$project_dir/godot/bin/libterrane_nbody.so"
-printf 'Installed %s\n' "$project_dir/godot/bin/libterrane_nbody.so"
+mkdir -p "$project_dir/godot/.godot"
+printf 'res://terrane_nbody.gdextension\n' >"$project_dir/godot/.godot/extension_list.cfg"
+printf 'Installed %s and registered the extension with Godot\n' "$project_dir/godot/bin/libterrane_nbody.so"
