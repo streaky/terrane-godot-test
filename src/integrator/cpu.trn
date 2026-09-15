@@ -36,18 +36,12 @@ public function step-cpu simulation-state; state simulation-state, delta float64
             right-index++
         left-index++
 
-    next-x list of float64 = list
-    next-y list of float64 = list
-    next-velocity-x list of float64 = list
-    next-velocity-y list of float64 = list
     update-index int = 0
     while update-index < body-count
-        updated-velocity-x float64 = state.velocity-x[update-index] + acceleration-x[update-index] * delta
-        updated-velocity-y float64 = state.velocity-y[update-index] + acceleration-y[update-index] * delta
-        next-velocity-x.append; updated-velocity-x
-        next-velocity-y.append; updated-velocity-y
-        next-x.append; state.x[update-index] + updated-velocity-x * delta
-        next-y.append; state.y[update-index] + updated-velocity-y * delta
+        state.velocity-x[update-index] = state.velocity-x[update-index] + acceleration-x[update-index] * delta
+        state.velocity-y[update-index] = state.velocity-y[update-index] + acceleration-y[update-index] * delta
+        state.x[update-index] = state.x[update-index] + state.velocity-x[update-index] * delta
+        state.y[update-index] = state.y[update-index] + state.velocity-y[update-index] * delta
         update-index++
-
-    return instance simulation-state; next-x, next-y, next-velocity-x, next-velocity-y, state.mass, state.elapsed + delta
+    state.elapsed = state.elapsed + delta
+    return state
