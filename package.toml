@@ -1,0 +1,16 @@
+package = "terrane-godot-nbody"
+artifact = "dynamic-library"
+
+[profile]
+name = "godot-extension"
+capabilities = ["build"]
+
+[namespaces]
+nbody = "src"
+
+[rust-dependencies.godot]
+version = "=0.5.5"
+effects = ["build"]
+
+[rust-modules]
+godot_bridge = "rust/godot_bridge.rs"

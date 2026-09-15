@@ -1,0 +1,15 @@
+namespace nbody
+
+from /core/output import print
+from /nbody/integrator import step-cpu
+from /nbody/setup import default-system
+from /nbody/snapshot import snapshot
+
+function main;
+    state = default-system;
+    iteration int = 0
+    while iteration < 600
+        state = step-cpu; move state, 0.008333333333333333
+        iteration++
+    frame = snapshot; ref state
+    print; 'Terrane CPU N-body smoke frame: ', frame.bodies.length, ' bodies at ', frame.elapsed, ' seconds'

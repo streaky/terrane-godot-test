@@ -1,0 +1,19 @@
+namespace nbody/model
+
+from /core/collections import list
+
+public class simulation-state
+    x list of float64 = list
+    y list of float64 = list
+    velocity-x list of float64 = list
+    velocity-y list of float64 = list
+    mass list of float64 = list
+    elapsed float64 = 0
+
+    function construct; x (list of float64), y (list of float64), velocity-x (list of float64), velocity-y (list of float64), mass (list of float64), elapsed float64
+        this.x = x
+        this.y = y
+        this.velocity-x = velocity-x
+        this.velocity-y = velocity-y
+        this.mass = mass
+        this.elapsed = elapsed

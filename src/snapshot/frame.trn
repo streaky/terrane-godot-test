@@ -1,0 +1,30 @@
+namespace nbody/snapshot
+
+from /core/collections import list
+from /nbody/model import simulation-state
+
+public class frame-body
+    x float64 = 0
+    y float64 = 0
+    mass float64 = 1
+
+    function construct; x float64, y float64, mass float64
+        this.x = x
+        this.y = y
+        this.mass = mass
+
+public class frame-state
+    bodies list of frame-body = list
+    elapsed float64 = 0
+
+    function construct; bodies (list of frame-body), elapsed float64
+        this.bodies = bodies
+        this.elapsed = elapsed
+
+public function snapshot frame-state; state ref simulation-state
+    bodies list of frame-body = list
+    index int = 0
+    while index < state.x.length
+        bodies.append; (instance frame-body; state.x[index], state.y[index], state.mass[index])
+        index++
+    return instance frame-state; bodies, state.elapsed
