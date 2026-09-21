@@ -87,13 +87,18 @@ Godot's rendered video frames per second, and the simulation-time multiplier.
 
 Terrane imports generated and reexported Godot API through the ordinary
 `/deps/godot` projection. The drawing path constructs `Vector2` positions and
-`Color` values in Terrane, while the acceptance fixture also checks the
-generated `Node2D` class surface.
+`Color` values in Terrane. The acceptance fixture currently checks generated
+`Node2D` type identity plus projected `Vector2` construction and methods; it
+does not claim that a `Node2D` lifecycle method is projected until the focused
+class-method fixture passes.
 
-GDExtension registration still requires Rust attribute and derive macros, and
-Godot invokes lifecycle methods through Rust traits. The maintained Rust module
-contains only that host-mandated ceremony: it forwards callback deltas into the
-Terrane controller and issues drawing calls from Terrane-prepared values. The
+The authored drawing body is tied to specific current declines rather than a
+general Godot exception: GDExtension registration requires Rust attribute and
+derive macros, lifecycle entry uses the Rust `INode2D` trait, projected foreign
+resources cannot yet be stored in Terrane collections, and explicit lossy
+`float64`-to-`float32` narrowing is planned in compiler milestone 30.5. The
+maintained Rust module therefore performs only that host ceremony, three
+boundary casts, and final `draw_circle` calls from Terrane-prepared values. The
 generated crate's Cargo compilation checks this boundary; renaming the Terrane
 declarations or changing compiler member visibility fails there rather than
 during Terrane semantic checking.
