@@ -1,6 +1,6 @@
 # Terrane Godot N-body experiment
 
-This project exercises a Terrane-authored CPU N-body simulation through the Rust `godot` GDExtension bindings. The simulation and frame model are Terrane code; the maintained Rust module is limited to Godot's macro-defined extension entrypoint and `Node2D` lifecycle/drawing bridge.
+This project exercises a Terrane-authored CPU N-body simulation through the Rust `godot` GDExtension bindings. The simulation, frame model, and Godot builtin value construction are Terrane code; the maintained Rust module is limited to Godot's macro-defined extension entrypoint and host-mandated `Node2D` lifecycle/drawing ceremony.
 
 [Watch a 10-second recording of the simulation on YouTube.](https://www.youtube.com/watch?v=kqYydz2LnyI)
 
@@ -13,7 +13,7 @@ Terrane symplectic-Euler CPU integrator
         ↓
 Terrane immutable frame snapshot
         ↓
-minimal maintained Rust Godot binding
+Terrane-projected Godot values and minimal host bridge
         ↓
 Godot Node2D visualization
 ```
@@ -81,19 +81,20 @@ and draws every body as a circle. The overlay reports measured simulation steps
 per second, Godot's rendered video frames per second, and the simulation-time
 multiplier.
 
-## Current integration gaps
+## Current integration boundary
 
-The standard dependency projector was run first, but `godot` currently yields no
-projectable members because its public engine surface is macro-generated and
-reexport-heavy. In addition, GDExtension registration requires Rust attribute
-and derive macros. Both limitations are recorded in
-`terrane-integration-adapters`; the project therefore uses one maintained Rust
-module for only that non-projectable boundary.
+Terrane imports generated and reexported Godot API through the ordinary
+`/deps/godot` projection. The drawing path constructs `Vector2` positions and
+`Color` values in Terrane, while the acceptance fixture also checks the
+generated `Node2D` class surface.
 
-That bridge intentionally names lowered Terrane functions, types, and public
-fields directly. The generated crate's Cargo compilation checks this boundary;
-renaming the Terrane declarations or changing compiler member visibility will
-fail there rather than during Terrane semantic checking.
+GDExtension registration still requires Rust attribute and derive macros, and
+Godot invokes lifecycle methods through Rust traits. The maintained Rust module
+contains only that host-mandated ceremony and forwards simulation and value
+construction to lowered Terrane functions. The generated crate's Cargo
+compilation checks this boundary; renaming the Terrane declarations or changing
+compiler member visibility fails there rather than during Terrane semantic
+checking.
 
 The initial conditions are a useful drawing and integration stress case, not a
 carefully tuned stable orbital system. A later physical model should choose and

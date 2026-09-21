@@ -3,11 +3,20 @@ namespace nbody
 from /core/output import print
 from /nbody/integrator import step-cpu
 from /nbody/setup import default-system
+from /deps/godot/builtin import Color, Vector2
 from /nbody/snapshot import snapshot
+
+public function draw-position Vector2; x float32, y float32
+    return Vector2::new; x, y
+
+public function body-color Color;
+    return Color::from_rgb; 0.45, 0.78, 1.0
 
 function main;
     state = default-system;
     iteration int = 0
+    _ Vector2 = draw-position; 0.0, 0.0
+    _ Color = body-color;
     while iteration < 600
         state = step-cpu; move state, 0.008333333333333333
         iteration++

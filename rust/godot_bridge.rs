@@ -70,9 +70,9 @@ impl INode2D for TerraneNBodyView {
         );
         for body in frame.bodies {
             let radius = (body.mass.sqrt() * 0.22).clamp(3.0, 14.0) as f32;
-            let position = Vector2::new(body.x as f32, body.y as f32);
+            let position = super::draw_position(body.x as f32, body.y as f32);
             self.base_mut()
-                .draw_circle(position, radius, Color::from_rgb(0.45, 0.78, 1.0));
+                .draw_circle(position, radius, super::body_color());
         }
     }
 }
