@@ -1,0 +1,69 @@
+namespace nbody/godot
+
+from /core/collections import list
+from /deps/godot/builtin import Color, Vector2
+from /nbody/integrator import step-cpu
+from /nbody/model import simulation-state
+from /nbody/setup import default-system
+from /nbody/snapshot import snapshot
+
+private function fixed-step float64;
+    return 1.0 / 120.0
+
+private function body-radius float64; mass float64
+    return ((mass.square-root;) * 0.22).clamp; 3.0, 14.0
+
+public class godot-view-state
+    simulation simulation-state = instance simulation-state; list, list, list, list, list, 0.0
+    accumulated-time float64 = 0.0
+    completed-steps int64 = 0
+
+    function construct; simulation simulation-state, accumulated-time float64, completed-steps int64
+        this.simulation = simulation
+        this.accumulated-time = accumulated-time
+        this.completed-steps = completed-steps
+
+public class godot-draw-body
+    x float64 = 0.0
+    y float64 = 0.0
+    radius float64 = 0.0
+
+    function construct; x float64, y float64, radius float64
+        this.x = x
+        this.y = y
+        this.radius = radius
+
+public class godot-draw-frame
+    bodies list of godot-draw-body = list
+
+    function construct; bodies (list of godot-draw-body)
+        this.bodies = bodies
+
+public function new-godot-view godot-view-state;
+    return instance godot-view-state; (default-system;), 0.0, 0
+
+public function advance-godot-view godot-view-state; state godot-view-state, delta float64
+    step float64 = fixed-step;
+    state.accumulated-time = state.accumulated-time + (delta.clamp; 0.0, 0.25) * (simulation-time-scale;)
+    while state.accumulated-time >= step
+        state.simulation = step-cpu; move state.simulation, step
+        state.completed-steps = state.completed-steps + 1
+        state.accumulated-time = state.accumulated-time - step
+    return state
+
+public function render-godot-frame godot-draw-frame; state ref godot-view-state
+    frame = snapshot; ref state.simulation
+    bodies list of godot-draw-body = list
+    for body in frame.bodies
+        radius float64 = body-radius; body.mass
+        bodies.append; (instance godot-draw-body; body.x, body.y, radius)
+    return instance godot-draw-frame; bodies
+
+public function godot-draw-position Vector2; x float32, y float32
+    return Vector2::new; x, y
+
+public function godot-body-color Color;
+    return Color::from_rgb; 0.45, 0.78, 1.0
+
+public function simulation-time-scale float64;
+    return 20.0

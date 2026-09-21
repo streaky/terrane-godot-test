@@ -1,0 +1,16 @@
+namespace nbody
+
+from /core/testing import assert, assert-equal-int, assert-near, test-failure
+from /nbody/godot import advance-godot-view, new-godot-view, render-godot-frame
+
+function test-godot-view-owns-frame-policy none throws test-failure;
+    state = new-godot-view;
+    state = advance-godot-view; move state, 0.008333333333333333
+
+    assert; state.completed-steps == 20
+    assert-near; state.simulation.elapsed, 0.16666666666666666, 0.000000000001
+
+    frame = render-godot-frame; ref state
+    assert-equal-int; frame.bodies.length, 4
+    assert-near; frame.bodies[0].radius, 8.231646250902667, 0.000000000001
+    return none

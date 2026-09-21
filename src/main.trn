@@ -1,15 +1,13 @@
 namespace nbody
 
 from /core/output import print
-from /nbody/integrator import step-cpu
-from /nbody/setup import default-system
-from /nbody/snapshot import snapshot
+from /nbody/godot import advance-godot-view, godot-body-color, godot-draw-position, new-godot-view, render-godot-frame, simulation-time-scale
 
 function main;
-    state = default-system;
-    iteration int = 0
-    while iteration < 600
-        state = step-cpu; move state, 0.008333333333333333
-        iteration++
-    frame = snapshot; ref state
-    print; 'Terrane CPU N-body smoke frame: ', frame.bodies.length, ' bodies at ', frame.elapsed, ' seconds'
+    view = new-godot-view;
+    view = advance-godot-view; move view, 0.25
+    frame = render-godot-frame; ref view
+    _ = godot-draw-position; 0.0, 0.0
+    _ = godot-body-color;
+    scale = simulation-time-scale;
+    print; 'Terrane CPU N-body smoke frame: ', frame.bodies.length, ' bodies at ', view.simulation.elapsed, ' seconds and ', scale, '× time'
