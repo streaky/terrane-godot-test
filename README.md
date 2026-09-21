@@ -1,6 +1,6 @@
 # Terrane Godot N-body experiment
 
-This project exercises a Terrane-authored CPU N-body simulation through the Rust `godot` GDExtension bindings. The simulation, frame model, and Godot builtin value construction are Terrane code; the maintained Rust module is limited to Godot's macro-defined extension entrypoint and host-mandated `Node2D` lifecycle/drawing ceremony.
+This project exercises a Terrane-authored CPU N-body simulation through the Rust `godot` GDExtension bindings. The simulation, fixed-step controller, render preparation, frame model, and Godot builtin value construction are Terrane code; the maintained Rust module is limited to Godot's macro-defined extension entrypoint and host-mandated `Node2D` lifecycle/drawing ceremony.
 
 [Watch a 10-second recording of the simulation on YouTube.](https://www.youtube.com/watch?v=kqYydz2LnyI)
 
@@ -24,6 +24,7 @@ The Terrane source is split by namespace:
 - `nbody/integrator` owns the CPU backend;
 - `nbody/setup` owns initial conditions;
 - `nbody/snapshot` owns the visualization-facing frame;
+- `nbody/godot` owns fixed-step scheduling and render-ready Godot values;
 - `nbody` contains the package entrypoint used as a compile-time integration check.
 
 A CUDA backend is deliberately not stubbed yet. It is a later backend of the same state-to-snapshot model, and adding a placeholder now would not validate any CUDA behavior.
@@ -72,14 +73,15 @@ For a display-independent smoke run:
 godot --headless --path godot --quit-after 120
 ```
 
-Some installations name the executable `godot4` instead. Godot accumulates
-render-frame time and advances the simulation in fixed 1/120-second steps, so
-the trajectory is independent of render-frame cadence. The visualization runs
-that fixed-step trajectory at 20× real-time to keep its deliberately small
-world-space velocities visible. Each rendered frame requests a Terrane snapshot
-and draws every body as a circle. The overlay reports measured simulation steps
-per second, Godot's rendered video frames per second, and the simulation-time
-multiplier.
+Some installations name the executable `godot4` instead. Godot supplies
+render-frame deltas to the host callback; the Terrane `nbody/godot` controller
+clamps and accumulates them, advances the simulation in fixed 1/120-second
+steps, and applies the 20× simulation-time scale. This keeps the trajectory
+independent of render-frame cadence while making its deliberately small
+world-space velocities visible. Each rendered frame asks Terrane for
+render-ready positions, radii, and colors, then the host callback issues the
+Godot drawing calls. The overlay reports measured simulation steps per second,
+Godot's rendered video frames per second, and the simulation-time multiplier.
 
 ## Current integration boundary
 
@@ -90,11 +92,11 @@ generated `Node2D` class surface.
 
 GDExtension registration still requires Rust attribute and derive macros, and
 Godot invokes lifecycle methods through Rust traits. The maintained Rust module
-contains only that host-mandated ceremony and forwards simulation and value
-construction to lowered Terrane functions. The generated crate's Cargo
-compilation checks this boundary; renaming the Terrane declarations or changing
-compiler member visibility fails there rather than during Terrane semantic
-checking.
+contains only that host-mandated ceremony: it forwards callback deltas into the
+Terrane controller and issues drawing calls from Terrane-prepared values. The
+generated crate's Cargo compilation checks this boundary; renaming the Terrane
+declarations or changing compiler member visibility fails there rather than
+during Terrane semantic checking.
 
 The initial conditions are a useful drawing and integration stress case, not a
 carefully tuned stable orbital system. A later physical model should choose and
