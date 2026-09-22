@@ -78,19 +78,20 @@ render-frame deltas to the host callback; the Terrane `nbody/godot` controller
 clamps and accumulates them, advances the simulation in fixed 1/120-second
 steps, and applies the 20× simulation-time scale. This keeps the trajectory
 independent of render-frame cadence while making its deliberately small
-world-space velocities visible. Each rendered frame asks Terrane for
-render-ready positions, radii, and colors, then the host callback issues the
-Godot drawing calls. The overlay reports measured simulation steps per second,
-Godot's rendered video frames per second, and the simulation-time multiplier.
+world-space velocities visible. The CPU integrator evaluates each unordered
+body pair once and applies equal-and-opposite force contributions. Each rendered
+frame asks Terrane for render-ready positions, radii, and mass-derived color
+tiers, then the host callback issues the Godot drawing calls. The overlay reports
+measured simulation steps per second, Godot's rendered video frames per second,
+and the simulation-time multiplier.
 
 ## Current integration boundary
 
 Terrane imports generated and reexported Godot API through the ordinary
 `/deps/godot` projection. The drawing path constructs `Vector2` positions and
-`Color` values in Terrane. The acceptance fixture currently checks generated
-`Node2D` type identity plus projected `Vector2` construction and methods; it
-does not claim that a `Node2D` lifecycle method is projected until the focused
-class-method fixture passes.
+mass-derived `Color` values in Terrane. The acceptance fixture checks generated
+`Node2D` identity and its projected `get_position` class method, plus projected
+`Vector2` construction and methods.
 
 The authored drawing body is tied to specific current declines rather than a
 general Godot exception: GDExtension registration requires Rust attribute and
@@ -98,8 +99,10 @@ derive macros, lifecycle entry uses the Rust `INode2D` trait, projected foreign
 resources cannot yet be stored in Terrane collections, and explicit lossy
 `float64`-to-`float32` narrowing is planned in compiler milestone 30.5. The
 maintained Rust module therefore performs only that host ceremony, three
-boundary casts, and final `draw_circle` calls from Terrane-prepared values. The
-generated crate's Cargo compilation checks this boundary; renaming the Terrane
+boundary casts, and final `draw_circle` calls from Terrane-prepared values.
+Terrane owns pairwise simulation, fixed-step scheduling, frame preparation,
+radius and color policy, and projected Godot value construction. The generated
+crate's Cargo compilation checks this boundary; renaming the Terrane
 declarations or changing compiler member visibility fails there rather than
 during Terrane semantic checking.
 

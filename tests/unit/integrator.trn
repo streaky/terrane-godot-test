@@ -1,21 +1,91 @@
 namespace nbody
 
+from /core/collections import list
 from /core/testing import assert-equal-int, assert-near, test-failure
 from /nbody/integrator import step-cpu
 from /nbody/model import simulation-state
 from /nbody/setup import default-system
 
+function assert-state-shape none throws test-failure; state ref simulation-state
+    count int = state.x.length
+    assert-equal-int; state.y.length, count
+    assert-equal-int; state.velocity-x.length, count
+    assert-equal-int; state.velocity-y.length, count
+    assert-equal-int; state.mass.length, count
+    return none
+
+function total-momentum-x float64; state ref simulation-state
+    total float64 = 0.0
+    index int = 0
+    while index < state.x.length
+        total = total + state.mass[index] * state.velocity-x[index]
+        index++
+    return total
+
+function total-momentum-y float64; state ref simulation-state
+    total float64 = 0.0
+    index int = 0
+    while index < state.y.length
+        total = total + state.mass[index] * state.velocity-y[index]
+        index++
+    return total
+
+function weighted-position-x float64; state ref simulation-state
+    total float64 = 0.0
+    index int = 0
+    while index < state.x.length
+        total = total + state.mass[index] * state.x[index]
+        index++
+    return total
+
+function weighted-position-y float64; state ref simulation-state
+    total float64 = 0.0
+    index int = 0
+    while index < state.y.length
+        total = total + state.mass[index] * state.y[index]
+        index++
+    return total
+
 function test-cpu-integrator-advances-known-system none throws test-failure;
     state simulation-state = default-system;
+    initial-momentum-x float64 = total-momentum-x; ref state
+    initial-momentum-y float64 = total-momentum-y; ref state
+    initial-weighted-x float64 = weighted-position-x; ref state
+    initial-weighted-y float64 = weighted-position-y; ref state
     iteration int = 0
     while iteration < 600
         state = step-cpu; move state, 0.008333333333333333
         iteration++
 
+    assert-state-shape; ref state
     assert-equal-int; state.x.length, 4
     assert-near; state.elapsed, 5.0, 0.000000000001
+    assert-near; (total-momentum-x; ref state), initial-momentum-x, 0.000000001
+    assert-near; (total-momentum-y; ref state), initial-momentum-y, 0.000000001
+    assert-near; (weighted-position-x; ref state), initial-weighted-x, 0.000000001
+    assert-near; (weighted-position-y; ref state), initial-weighted-y, 0.000000001
     assert-near; state.x[0], -139.77533781395573, 0.000000000001
     assert-near; state.y[0], -2.248822533418347, 0.000000000001
     assert-near; state.x[2], 3.6013832246708963, 0.000000000001
     assert-near; state.y[2], 229.5865143922282, 0.000000000001
+    return none
+
+function test-cpu-integrator-handles-degenerate-systems none throws test-failure;
+    empty simulation-state = instance simulation-state; list, list, list, list, list, 2.0
+    empty = step-cpu; move empty, 0.5
+    assert-state-shape; ref empty
+    assert-equal-int; empty.x.length, 0
+    assert-near; empty.elapsed, 2.5, 0.000000000001
+
+    one simulation-state = instance simulation-state; (list; 4.0), (list; 5.0), (list; 2.0), (list; -1.0), (list; 3.0), 0.0
+    one = step-cpu; move one, 0.5
+    assert-state-shape; ref one
+    assert-near; one.x[0], 5.0, 0.000000000001
+    assert-near; one.y[0], 4.5, 0.000000000001
+
+    overlap simulation-state = instance simulation-state; (list; 1.0, 1.0), (list; -2.0, -2.0), (list; 0.0, 0.0), (list; 0.0, 0.0), (list; 2.0, 3.0), 0.0
+    overlap = step-cpu; move overlap, 1.0
+    assert-state-shape; ref overlap
+    assert-near; overlap.x[0], 1.0, 0.000000000001
+    assert-near; overlap.y[1], -2.0, 0.000000000001
     return none

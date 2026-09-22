@@ -60,8 +60,11 @@ impl INode2D for TerraneNBodyView {
         );
         for body in frame.bodies {
             let position = super::godot_draw_position(body.x as f32, body.y as f32);
-            self.base_mut()
-                .draw_circle(position, body.radius as f32, super::godot_body_color());
+            self.base_mut().draw_circle(
+                position,
+                body.radius as f32,
+                super::godot_body_color(&body),
+            );
         }
     }
 }

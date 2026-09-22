@@ -14,3 +14,24 @@ function test-godot-view-owns-frame-policy none throws test-failure;
     assert-equal-int; frame.bodies.length, 4
     assert-near; frame.bodies[0].radius, 8.231646250902667, 0.000000000001
     return none
+
+function test-godot-view-accumulates-substep-deltas none throws test-failure;
+    state = new-godot-view;
+    state = advance-godot-view; move state, -1.0
+    state = advance-godot-view; move state, 0.0002
+    assert; state.completed-steps == 0
+    assert-near; state.accumulated-time, 0.004, 0.000000000001
+
+    state = advance-godot-view; move state, 0.0003
+    assert; state.completed-steps == 1
+    assert-near; state.simulation.elapsed, 0.008333333333333333, 0.000000000001
+    assert-near; state.accumulated-time, 0.001666666666666667, 0.000000000001
+    return none
+
+function test-godot-view-clamps-large-frame-deltas none throws test-failure;
+    state = new-godot-view;
+    state = advance-godot-view; move state, 1.0
+    assert; state.completed-steps == 600
+    assert-near; state.simulation.elapsed, 5.0, 0.000000000001
+    assert-near; state.accumulated-time, 0.0, 0.000000000001
+    return none

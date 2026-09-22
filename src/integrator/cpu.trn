@@ -5,10 +5,10 @@ from /nbody/model import simulation-state
 
 constant softening-squared float64 = 25
 
-function acceleration-scale float64; distance-squared float64, mass float64
+function inverse-distance-cubed float64; distance-squared float64
     softened float64 = distance-squared + softening-squared
     inverse-distance float64 = 1 / (softened.square-root;)
-    return mass * inverse-distance * inverse-distance * inverse-distance
+    return inverse-distance * inverse-distance * inverse-distance
 
 public function step-cpu simulation-state; state simulation-state, delta float64
     acceleration-x list of float64 = list
@@ -25,14 +25,15 @@ public function step-cpu simulation-state; state simulation-state, delta float64
     while left-index < body-count
         left-x float64 = state.x[left-index]
         left-y float64 = state.y[left-index]
-        right-index int = 0
+        right-index int = left-index + 1
         while right-index < body-count
-            if right-index != left-index
-                delta-x float64 = state.x[right-index] - left-x
-                delta-y float64 = state.y[right-index] - left-y
-                scale float64 = acceleration-scale; delta-x * delta-x + delta-y * delta-y, state.mass[right-index]
-                acceleration-x[left-index] = acceleration-x[left-index] + delta-x * scale
-                acceleration-y[left-index] = acceleration-y[left-index] + delta-y * scale
+            delta-x float64 = state.x[right-index] - left-x
+            delta-y float64 = state.y[right-index] - left-y
+            inverse-cube float64 = inverse-distance-cubed; delta-x * delta-x + delta-y * delta-y
+            acceleration-x[left-index] = acceleration-x[left-index] + delta-x * state.mass[right-index] * inverse-cube
+            acceleration-y[left-index] = acceleration-y[left-index] + delta-y * state.mass[right-index] * inverse-cube
+            acceleration-x[right-index] = acceleration-x[right-index] - delta-x * state.mass[left-index] * inverse-cube
+            acceleration-y[right-index] = acceleration-y[right-index] - delta-y * state.mass[left-index] * inverse-cube
             right-index++
         left-index++
 

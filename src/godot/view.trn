@@ -10,6 +10,9 @@ from /nbody/snapshot import snapshot
 private function fixed-step float64;
     return 1.0 / 120.0
 
+private function fixed-step-epsilon float64;
+    return 0.000000000001
+
 private function body-radius float64; mass float64
     return ((mass.square-root;) * 0.22).clamp; 3.0, 14.0
 
@@ -45,10 +48,12 @@ public function new-godot-view godot-view-state;
 public function advance-godot-view godot-view-state; state godot-view-state, delta float64
     step float64 = fixed-step;
     state.accumulated-time = state.accumulated-time + (delta.clamp; 0.0, 0.25) * (simulation-time-scale;)
-    while state.accumulated-time >= step
+    while state.accumulated-time + (fixed-step-epsilon;) >= step
         state.simulation = step-cpu; move state.simulation, step
         state.completed-steps = state.completed-steps + 1
         state.accumulated-time = state.accumulated-time - step
+        if state.accumulated-time < 0.0
+            state.accumulated-time = 0.0
     return state
 
 public function render-godot-frame godot-draw-frame; state ref godot-view-state
@@ -62,8 +67,12 @@ public function render-godot-frame godot-draw-frame; state ref godot-view-state
 public function godot-draw-position Vector2; x float32, y float32
     return Vector2::new; x, y
 
-public function godot-body-color Color;
-    return Color::from_rgb; 0.45, 0.78, 1.0
+public function godot-body-color Color; body ref godot-draw-body
+    if body.radius >= 10.0
+        return Color::from_rgb; 1.0, 0.55, 0.25
+    if body.radius >= 5.0
+        return Color::from_rgb; 0.45, 0.78, 1.0
+    return Color::from_rgb; 0.65, 0.9, 0.7
 
 public function simulation-time-scale float64;
     return 20.0

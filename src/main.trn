@@ -7,7 +7,8 @@ function main;
     view = new-godot-view;
     view = advance-godot-view; move view, 0.25
     frame = render-godot-frame; ref view
+    first = frame.bodies[0]
     _ = godot-draw-position; 0.0, 0.0
-    _ = godot-body-color;
+    _ = godot-body-color; ref first
     scale = simulation-time-scale;
-    print; 'Terrane CPU N-body smoke frame: ', frame.bodies.length, ' bodies at ', view.simulation.elapsed, ' seconds and ', scale, '× time'
+    print; 'Terrane CPU N-body smoke frame: ', frame.bodies.length, ' bodies, ', view.completed-steps, ' steps, first body at (', first.x, ', ', first.y, ') with radius ', first.radius, ' after ', view.simulation.elapsed, ' seconds and ', scale, '× time'
