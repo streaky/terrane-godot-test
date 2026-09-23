@@ -59,10 +59,10 @@ impl INode2D for TerraneNBodyView {
                 .expect("simulation state exists outside a frame update"),
         );
         for body in frame.bodies {
-            let position = super::godot_draw_position(body.x as f32, body.y as f32);
+            let position = super::godot_draw_position(body.x, body.y);
             self.base_mut().draw_circle(
                 position,
-                body.radius as f32,
+                body.radius,
                 super::godot_body_color(&body),
             );
         }

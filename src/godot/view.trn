@@ -27,11 +27,11 @@ public class godot-view-state
         this.completed-steps = completed-steps
 
 public class godot-draw-body
-    x float64 = 0.0
-    y float64 = 0.0
-    radius float64 = 0.0
+    x float32 = 0.0
+    y float32 = 0.0
+    radius float32 = 0.0
 
-    function construct; x float64, y float64, radius float64
+    function construct; x float32, y float32, radius float32
         this.x = x
         this.y = y
         this.radius = radius
@@ -60,8 +60,11 @@ public function render-godot-frame godot-draw-frame; state ref godot-view-state
     frame = snapshot; ref state.simulation
     bodies list of godot-draw-body = list
     for body in frame.bodies
+        draw-x float32 = body.x.coerce.lossy; float32
+        draw-y float32 = body.y.coerce.lossy; float32
         radius float64 = body-radius; body.mass
-        bodies.append; (instance godot-draw-body; body.x, body.y, radius)
+        draw-radius float32 = radius.coerce.lossy; float32
+        bodies.append; (instance godot-draw-body; draw-x, draw-y, draw-radius)
     return instance godot-draw-frame; bodies
 
 public function godot-draw-position Vector2; x float32, y float32

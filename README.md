@@ -95,16 +95,15 @@ mass-derived `Color` values in Terrane. The acceptance fixture checks generated
 
 The authored drawing body is tied to specific current declines rather than a
 general Godot exception: GDExtension registration requires Rust attribute and
-derive macros, lifecycle entry uses the Rust `INode2D` trait, projected foreign
-resources cannot yet be stored in Terrane collections, and explicit lossy
-`float64`-to-`float32` narrowing is planned in compiler milestone 30.5. The
-maintained Rust module therefore performs only that host ceremony, three
-boundary casts, and final `draw_circle` calls from Terrane-prepared values.
-Terrane owns pairwise simulation, fixed-step scheduling, frame preparation,
-radius and color policy, and projected Godot value construction. The generated
-crate's Cargo compilation checks this boundary; renaming the Terrane
-declarations or changing compiler member visibility fails there rather than
-during Terrane semantic checking.
+derive macros, lifecycle entry uses the Rust `INode2D` trait, and projected
+foreign resources cannot yet be stored in Terrane collections. The render plan
+narrows its `float64` coordinates and radii explicitly to `float32` in Terrane,
+so the maintained Rust module performs only that host ceremony and final
+`draw_circle` calls from Terrane-prepared values. Terrane owns pairwise
+simulation, fixed-step scheduling, frame preparation, radius and color policy,
+and projected Godot value construction. The generated crate's Cargo compilation
+checks this boundary; renaming the Terrane declarations or changing compiler
+member visibility fails there rather than during Terrane semantic checking.
 
 The initial conditions are a useful drawing and integration stress case, not a
 carefully tuned stable orbital system. A later physical model should choose and

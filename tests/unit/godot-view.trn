@@ -12,7 +12,8 @@ function test-godot-view-owns-frame-policy none throws test-failure;
 
     frame = render-godot-frame; ref state
     assert-equal-int; frame.bodies.length, 4
-    assert-near; frame.bodies[0].radius, 8.231646250902667, 0.000000000001
+    expected-radius float32 = 8.231646250902667.coerce.lossy; float32
+    assert-near; frame.bodies[0].radius, expected-radius, 0.0
     return none
 
 function test-godot-view-accumulates-substep-deltas none throws test-failure;
